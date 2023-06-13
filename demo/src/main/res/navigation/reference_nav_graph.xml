@@ -4,14 +4,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/reference_nav_graph"
-    app:startDestination="@id/patient_list"
+    app:startDestination="@id/family_list"
 >
 
   <fragment
-        android:id="@+id/patient_list"
-        android:label="Patient List"
-        android:name="com.google.android.fhir.demo.PatientListFragment"
-        tools:layout="@layout/patient_list_view"
+        android:id="@+id/family_list"
+        android:label="Family List"
+        android:name="com.google.android.fhir.demo.FamilyListFragment"
+        tools:layout="@layout/family_list_view"
     >
     <action
             android:id="@+id/navigate_to_product_detail"

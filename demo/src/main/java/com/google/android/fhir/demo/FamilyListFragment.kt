@@ -43,21 +43,22 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.fhir.FhirEngine
 import com.google.android.fhir.demo.PatientListViewModel.PatientListViewModelFactory
+import com.google.android.fhir.demo.databinding.FragmentFamilyListBinding
 import com.google.android.fhir.demo.databinding.FragmentPatientListBinding
 import com.google.android.fhir.sync.SyncJobStatus
 import kotlin.math.roundToInt
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
-class PatientListFragment : Fragment() {
+class FamilyListFragment : Fragment() {
   private lateinit var fhirEngine: FhirEngine
-  private lateinit var patientListViewModel: PatientListViewModel
+  private lateinit var familyListViewModel: FamilyListViewModel
   private lateinit var searchView: SearchView
   private lateinit var topBanner: LinearLayout
   private lateinit var syncStatus: TextView
   private lateinit var syncPercent: TextView
   private lateinit var syncProgress: ProgressBar
-  private var _binding: FragmentPatientListBinding? = null
+  private var _binding: FragmentFamilyListBinding? = null
   private val binding
     get() = _binding!!
   private val mainActivityViewModel: MainActivityViewModel by activityViewModels()
@@ -67,25 +68,25 @@ class PatientListFragment : Fragment() {
     container: ViewGroup?,
     savedInstanceState: Bundle?
   ): View {
-    _binding = FragmentPatientListBinding.inflate(inflater, container, false)
+    _binding = FragmentFamilyListBinding.inflate(inflater, container, false)
     return binding.root
   }
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
     (requireActivity() as AppCompatActivity).supportActionBar?.apply {
-      title = resources.getString(R.string.title_patient_list)
+      title = resources.getString(R.string.title_family_list)
       setDisplayHomeAsUpEnabled(true)
     }
     fhirEngine = FhirApplication.fhirEngine(requireContext())
-    patientListViewModel =
+    familyListViewModel =
       ViewModelProvider(
           this,
-          PatientListViewModelFactory(requireActivity().application, fhirEngine)
+        FamilyListViewModel.FamilyListViewModelFactory(requireActivity().application, fhirEngine)
         )
-        .get(PatientListViewModel::class.java)
-    val recyclerView: RecyclerView = binding.patientListContainer.patientList
-    val adapter = PatientItemRecyclerViewAdapter(this::onPatientItemClicked)
+        .get(FamilyListViewModel::class.java)
+    val recyclerView: RecyclerView = binding.familyListContainer.familyList
+    val adapter = FamilyItemRecyclerViewAdapter(this::onPatientItemClicked)
     recyclerView.adapter = adapter
     recyclerView.addItemDecoration(
       DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL).apply {
@@ -93,13 +94,13 @@ class PatientListFragment : Fragment() {
       }
     )
 
-    patientListViewModel.liveSearchedPatients.observe(viewLifecycleOwner) {
+    familyListViewModel.liveSearchedFamilies.observe(viewLifecycleOwner) {
       Timber.d("Submitting ${it.count()} patient records")
       adapter.submitList(it)
     }
 
-    patientListViewModel.patientCount.observe(viewLifecycleOwner) {
-      binding.patientListContainer.patientCount.text = "$it Patient(s)"
+    familyListViewModel.familyCount.observe(viewLifecycleOwner) {
+      binding.familyListContainer.familyCount.text = "$it Family"
     }
 
     searchView = binding.search
@@ -110,12 +111,12 @@ class PatientListFragment : Fragment() {
     searchView.setOnQueryTextListener(
       object : SearchView.OnQueryTextListener {
         override fun onQueryTextChange(newText: String): Boolean {
-          patientListViewModel.searchPatientsByName(newText)
+          familyListViewModel.searchFamiliesByName(newText)
           return true
         }
 
         override fun onQueryTextSubmit(query: String): Boolean {
-          patientListViewModel.searchPatientsByName(query)
+          familyListViewModel.searchFamiliesByName(query)
           return true
         }
       }
@@ -163,19 +164,19 @@ class PatientListFragment : Fragment() {
           }
           is SyncJobStatus.Finished -> {
             Timber.i("Sync: ${it::class.java.simpleName} at ${it.timestamp}")
-            patientListViewModel.searchPatientsByName(searchView.query.toString().trim())
+            familyListViewModel.searchFamiliesByName(searchView.query.toString().trim())
             mainActivityViewModel.updateLastSyncTimestamp()
             fadeOutTopBanner(it)
           }
           is SyncJobStatus.Failed -> {
             Timber.i("Sync: ${it::class.java.simpleName} at ${it.timestamp}")
-            patientListViewModel.searchPatientsByName(searchView.query.toString().trim())
+            familyListViewModel.searchFamiliesByName(searchView.query.toString().trim())
             mainActivityViewModel.updateLastSyncTimestamp()
             fadeOutTopBanner(it)
           }
           else -> {
             Timber.i("Sync: Unknown state.")
-            patientListViewModel.searchPatientsByName(searchView.query.toString().trim())
+            familyListViewModel.searchFamiliesByName(searchView.query.toString().trim())
             mainActivityViewModel.updateLastSyncTimestamp()
             fadeOutTopBanner(it)
           }
@@ -201,10 +202,11 @@ class PatientListFragment : Fragment() {
     }
   }
 
-  private fun onPatientItemClicked(patientItem: PatientListViewModel.PatientItem) {
+  private fun onPatientItemClicked(familyItem: FamilyListViewModel.FamilyItem) {
   }
 
   private fun onAddPatientClick() {
+
   }
 
   private fun fadeInTopBanner(state: SyncJobStatus) {

@@ -39,7 +39,7 @@ class TimestampBasedDownloadWorkManagerImpl(private val dataStore: DemoDataStore
   private val urls =
     LinkedList(
       listOf(
-        "Patient?address-city=NAIROBI&_sort=_lastUpdated",
+        "Group?_sort=_lastUpdated",
         "Binary?_id=android-fhir-thermometer-image"
       )
     )
